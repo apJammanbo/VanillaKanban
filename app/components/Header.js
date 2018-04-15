@@ -1,8 +1,15 @@
-import { makeElement } from "../util";
+/**
+ * Heaer 프로그램 상단의 헤더입니다.
+ */
 
-class Header {
+import Component from '../leact/Component';
+import { makeElement } from "../leact/Leact";
 
-    make = () => {
+class Header extends Component {
+    /**
+     * 컴포넌트를 생성한다.
+     */
+    create = () => {
         const element = makeElement('header', null,
             makeElement('div', { className: "content"},
                 makeElement('h1', null,
@@ -15,10 +22,6 @@ class Header {
         );
 
         return element;
-    }
-
-    render = () => {
-        return this.make();
     }
 }
 
