@@ -5,12 +5,16 @@ import {
     TOGGLE_ADD_DLG,
     ADD_TASK,
     DELETE_TASK,
+    CHANGE_TYPE,
+    SELECT_ASSIGNEE,
 } from './constants';
 
 import {
     toggleAddDlg,
     addTask,
     deleteTask,
+    changeType,
+    selectAssignee,
 } from './logic';
 
 const initialData = {
@@ -43,7 +47,6 @@ class KanbanReducer {
      */
     run = (data = initialData, action) => {
         const ret = this.reduce(data, action);
-        console.log(ret);
         this.container.render(ret);
     }
 
@@ -53,8 +56,12 @@ class KanbanReducer {
                 return toggleAddDlg(data, action);
             case ADD_TASK:
                 return addTask(data, action);
-            // case DELETE_TASK:
-            //     return deleteTask(data, action);
+            case DELETE_TASK:
+                return deleteTask(data, action);
+            case CHANGE_TYPE:
+                return  changeType(data, action);
+            case SELECT_ASSIGNEE:
+                return selectAssignee(data, action);
             default:
                 return data;
         }

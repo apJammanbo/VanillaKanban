@@ -18,7 +18,9 @@ import {
     toggleAddDlg,
     addTask,
     deleteTask,
-}from '../controller/actions';
+    changeType,
+    selectAssignee,
+} from '../controller/actions';
 
 class App extends Component {
     constructor() {
@@ -71,7 +73,7 @@ class App extends Component {
      * 태스크를 추가한다.
      */
     handleAddTask = (task) => {
-        // // to-do 리스트를 복사해서 새로운 태스크를 추가한다.
+        // to-do 리스트를 복사해서 새로운 태스크를 추가한다.
         // const todoTasks = this.props.tasks.todoTasks.slice();
         // todoTasks.push(task);
         //
@@ -93,141 +95,144 @@ class App extends Component {
      * 태스크 삭제
      */
     handleDeleteTask = (task, taskType) => {
-        // this.reducer.run(this.props, deleteTask(task, taskType));
+        this.reducer.run(this.props, deleteTask(task, taskType));
         // task 를 복사하여 새로운 todoList 를 대입한다.
-        const tasks = Object.assign({}, this.props.tasks);
-
-        if(taskType === "todo") {
-            // to-do 리스트를 복사해서 새로운 태스크를 추가한다.
-            const todoTasks = this.props.tasks.todoTasks.slice();
-            const index = todoTasks.indexOf(task);
-            todoTasks.splice(index,1);
-            tasks.todoTasks = todoTasks;
-
-        } else if(taskType === "inProgress") {
-            // to-do 리스트를 복사해서 새로운 태스크를 추가한다.
-            const inProgressTasks = this.props.tasks.inProgressTasks.slice();
-            const index = inProgressTasks.indexOf(task);
-            inProgressTasks.splice(index,1);
-            tasks.inProgressTasks = inProgressTasks;
-
-        } else if(taskType === "done") {
-            // to-do 리스트를 복사해서 새로운 태스크를 추가한다.
-            const doneTasks = this.props.tasks.doneTasks.slice();
-            const index = doneTasks.indexOf(task);
-            doneTasks.splice(index,1);
-            tasks.doneTasks = doneTasks;
-
-        }
-
-        // props 를 복사하여 task 를 설정한다.
-        this.props = Object.assign({} , this.props, {tasks: tasks});
-
-        // 태스크가 삭제되면서 선택된 담당자도 삭제되어야 하는지 판단한다.
-        const delAssignees = task.assignees.filter((assignee) => {
-            let isFind = false;
-            this.props.tasks.todoTasks.forEach((task) => {
-                if(task.assignees.indexOf(assignee) !== -1) {
-                    isFind = true;
-                }
-            });
-            this.props.tasks.inProgressTasks.forEach((task) => {
-                if(task.assignees.indexOf(assignee) !== -1) {
-                    isFind = true;
-                }
-            });
-            this.props.tasks.doneTasks.forEach((task) => {
-                if(task.assignees.indexOf(assignee) !== -1) {
-                    isFind = true;
-                }
-            });
-            return !isFind;
-        });
-
-        const selectedAssignees = new Set(this.props.selectedAssignees);
-        delAssignees.forEach((assignee) => {
-            selectedAssignees.delete(assignee);
-        });
-
-        this.props = Object.assign({}, this.props, {selectedAssignees: selectedAssignees});
-        this.update(this.props);
+        // const tasks = Object.assign({}, this.props.tasks);
+        //
+        // if(taskType === "todo") {
+        //     // to-do 리스트를 복사해서 새로운 태스크를 추가한다.
+        //     const todoTasks = this.props.tasks.todoTasks.slice();
+        //     const index = todoTasks.indexOf(task);
+        //     todoTasks.splice(index,1);
+        //     tasks.todoTasks = todoTasks;
+        //
+        // } else if(taskType === "inProgress") {
+        //     // to-do 리스트를 복사해서 새로운 태스크를 추가한다.
+        //     const inProgressTasks = this.props.tasks.inProgressTasks.slice();
+        //     const index = inProgressTasks.indexOf(task);
+        //     inProgressTasks.splice(index,1);
+        //     tasks.inProgressTasks = inProgressTasks;
+        //
+        // } else if(taskType === "done") {
+        //     // to-do 리스트를 복사해서 새로운 태스크를 추가한다.
+        //     const doneTasks = this.props.tasks.doneTasks.slice();
+        //     const index = doneTasks.indexOf(task);
+        //     doneTasks.splice(index,1);
+        //     tasks.doneTasks = doneTasks;
+        //
+        // }
+        //
+        // // props 를 복사하여 task 를 설정한다.
+        // this.props = Object.assign({} , this.props, {tasks: tasks});
+        //
+        // // 태스크가 삭제되면서 선택된 담당자도 삭제되어야 하는지 판단한다.
+        // const delAssignees = task.assignees.filter((assignee) => {
+        //     let isFind = false;
+        //     this.props.tasks.todoTasks.forEach((task) => {
+        //         if(task.assignees.indexOf(assignee) !== -1) {
+        //             isFind = true;
+        //         }
+        //     });
+        //     this.props.tasks.inProgressTasks.forEach((task) => {
+        //         if(task.assignees.indexOf(assignee) !== -1) {
+        //             isFind = true;
+        //         }
+        //     });
+        //     this.props.tasks.doneTasks.forEach((task) => {
+        //         if(task.assignees.indexOf(assignee) !== -1) {
+        //             isFind = true;
+        //         }
+        //     });
+        //     return !isFind;
+        // });
+        //
+        // const selectedAssignees = new Set(this.props.selectedAssignees);
+        // delAssignees.forEach((assignee) => {
+        //     selectedAssignees.delete(assignee);
+        // });
+        //
+        // this.props = Object.assign({}, this.props, {selectedAssignees: selectedAssignees});
+        // this.update(this.props);
     }
 
     /**
      * 태스크 타입변경
      */
     handleChangeType = (key, type) => {
+        this.reducer.run(this.props, changeType(key, type));
         // task 를 복사하여 새로운 todoList 를 대입한다.
-        const tasks = Object.assign({}, this.props.tasks);
-        const todoTasks = this.props.tasks.todoTasks.slice();
-        const inProgressTasks = this.props.tasks.inProgressTasks.slice();
-        const doneTasks = this.props.tasks.doneTasks.slice();
-
-        let task = null;
-
-        // 각 태스크 리스트를 돌면서 태스크를 찾는다.
-        // To do
-        let index = tasks.todoTasks.findIndex((task) => {
-            return task.key === key
-        });
-        if(index > -1) {
-            task = tasks.todoTasks[index];
-            todoTasks.splice(index,1);
-        }
-
-        // inProgress
-        index = tasks.inProgressTasks.findIndex((task) => {
-            return task.key === key
-        });
-        if(index > -1) {
-            task = tasks.inProgressTasks[index];
-            inProgressTasks.splice(index,1);
-        }
-
-        // done
-        index = tasks.doneTasks.findIndex((task) => {
-            return task.key === key
-        });
-        if(index > -1) {
-            task = tasks.doneTasks[index];
-            doneTasks.splice(index,1);
-        }
-
-        // 태스크를 추가한다.
-        if(type === "todo") {
-            todoTasks.push(task);
-        } else if(type === "inProgress") {
-            inProgressTasks.push(task);
-
-        } else if(type === "done") {
-            doneTasks.push(task);
-        }
-
-        tasks.todoTasks = todoTasks;
-        tasks.inProgressTasks = inProgressTasks;
-        tasks.doneTasks = doneTasks;
-
-        // props 를 복사하여 task 를 설정한다.
-        this.props = Object.assign({} , this.props, {tasks: tasks});
-        this.update(this.props);
+        // const props = this.props;
+        // const tasks = Object.assign({}, props.tasks);
+        // const todoTasks = this.props.tasks.todoTasks.slice();
+        // const inProgressTasks = props.tasks.inProgressTasks.slice();
+        // const doneTasks = this.props.tasks.doneTasks.slice();
+        //
+        // let task = null;
+        //
+        // // 각 태스크 리스트를 돌면서 태스크를 찾는다.
+        // // To do
+        // let index = tasks.todoTasks.findIndex((task) => {
+        //     return task.key === key
+        // });
+        // if(index > -1) {
+        //     task = tasks.todoTasks[index];
+        //     todoTasks.splice(index,1);
+        // }
+        //
+        // // inProgress
+        // index = tasks.inProgressTasks.findIndex((task) => {
+        //     return task.key === key
+        // });
+        // if(index > -1) {
+        //     task = tasks.inProgressTasks[index];
+        //     inProgressTasks.splice(index,1);
+        // }
+        //
+        // // done
+        // index = tasks.doneTasks.findIndex((task) => {
+        //     return task.key === key
+        // });
+        // if(index > -1) {
+        //     task = tasks.doneTasks[index];
+        //     doneTasks.splice(index,1);
+        // }
+        //
+        // // 태스크를 추가한다.
+        // if(type === "todo") {
+        //     todoTasks.push(task);
+        // } else if(type === "inProgress") {
+        //     inProgressTasks.push(task);
+        //
+        // } else if(type === "done") {
+        //     doneTasks.push(task);
+        // }
+        //
+        // tasks.todoTasks = todoTasks;
+        // tasks.inProgressTasks = inProgressTasks;
+        // tasks.doneTasks = doneTasks;
+        //
+        // // props 를 복사하여 task 를 설정한다.
+        // this.props = Object.assign({} , this.props, {tasks: tasks});
+        // this.update(this.props);
     }
 
     /**
      * 선택된 담당자가 변경되면 발생합니다.
      */
     handleSelectAssignee = (assignee, isAdd) => {
-        const selectedAssignees = new Set(this.props.selectedAssignees);
-        if(isAdd) {
-            // 추가
-            selectedAssignees.add(assignee);
-
-        } else {
-            // 삭제
-            selectedAssignees.delete(assignee);
-        }
-        // 다이얼로그 닫기 설정한다.
-        this.props = Object.assign({}, this.props, {selectedAssignees: selectedAssignees});
-        this.update(this.props);
+        this.reducer.run(this.props, selectAssignee(assignee, isAdd));
+        // const selectedAssignees = new Set(this.props.selectedAssignees);
+        // if(isAdd) {
+        //     // 추가
+        //     selectedAssignees.add(assignee);
+        //
+        // } else {
+        //     // 삭제
+        //     selectedAssignees.delete(assignee);
+        // }
+        // // 다이얼로그 닫기 설정한다.
+        // this.props = Object.assign({}, this.props, {selectedAssignees: selectedAssignees});
+        // this.update(this.props);
     }
 
     // endregion
